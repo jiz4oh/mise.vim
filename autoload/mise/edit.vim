@@ -84,5 +84,5 @@ function! mise#edit#mkdir(dir) abort
 endfunction
 
 function! mise#edit#execute(file) abort
-  execute ':' . s:mise_edit_mode a:file
+  execute s:mise_edit_mode a:file
 endfunction
