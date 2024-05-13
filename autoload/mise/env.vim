@@ -85,7 +85,7 @@ function! mise#env#export_core(sync) abort
     return
   endif
 
-  let l:cmd = [s:mise_cmd, 'env']
+  let l:cmd = [s:mise_cmd, 'env', '--quiet']
   if !a:sync
     if has('nvim')
       call jobstart(l:cmd, s:job)
