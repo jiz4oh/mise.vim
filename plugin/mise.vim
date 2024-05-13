@@ -6,6 +6,7 @@ if exists('g:loaded_mise') || v:version < 700 || &compatible || !executable('mis
   finish
 endif
 let g:loaded_mise = 1
+let s:mise_auto = get(g:, 'mise_auto', 1)
 
 function! s:mise_root()
   return !empty($MISE_DATA_DIR) ? $MISE_DATA_DIR : !empty($XDG_DATA_HOME) ? expand($XDG_DATA_HOME . '/mise') : expand('~/.local/share/mise')
@@ -53,4 +54,18 @@ function! s:set_paths() abort
 endfunction
 
 call s:set_paths()
+
+command! -nargs=0 -bang MiseExport call mise#env#export(<bang>0)
+if s:mise_auto
+  augroup mise
+    au!
+    autocmd VimEnter * MiseExport
+
+    if exists('##DirChanged')
+      autocmd DirChanged * MiseExport!
+    else
+      autocmd BufEnter * MiseExport
+    endif
+  augroup END
+endif
 " vim:set et sw=2:
