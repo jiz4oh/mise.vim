@@ -1,4 +1,4 @@
-function! mise_ruby#ruby_version(dir)
+function! mise#ruby#version(dir)
   let dir = fnamemodify(a:dir, ':p')
   if !empty($MISE_RUBY_VERSION)
     let ver = $MISE_RUBY_VERSION

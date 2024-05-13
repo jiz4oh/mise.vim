@@ -44,7 +44,7 @@ endif
 
 function! s:set_paths() abort
   call extend(g:ruby_version_paths, s:ruby_version_paths(), 'keep')
-  let ver = mise_ruby#ruby_version('~')
+  let ver = mise#ruby#version('~')
   if has_key(g:ruby_version_paths, ver)
     let g:ruby_default_path = g:ruby_version_paths[ver]
   else
