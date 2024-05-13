@@ -56,6 +56,8 @@ endfunction
 call s:set_paths()
 
 command! -nargs=0 -bang MiseExport call mise#env#export(<bang>0)
+command! -nargs=0 -bang MiseEdit call mise#edit#miserc(<bang>0)
+
 if s:mise_auto
   augroup mise
     au!
