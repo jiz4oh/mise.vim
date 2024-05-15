@@ -32,13 +32,7 @@ endfunction
 function! mise#env#on_exit(_, status, ...) abort
   let s:job_status.running = 0
 
-  if !g:mise_silent_load
-    for l:m in s:job_status.stderr
-      if l:m isnot# ''
-        echom l:m
-      endif
-    endfor
-  endif
+  call s:process_err(s:job_status.stderr)
   call s:load_env(s:job_status.stdout)
 endfunction
 
@@ -103,10 +97,22 @@ function! mise#env#export_core(sync) abort
     endif
   endif
 
-  let l:tmp = tempname()
-  echom system(printf(join(l:cmd).' '.&shellredir, l:tmp))
-  call s:load_env(readfile(l:tmp))
-  call delete(l:tmp)
+  let lines = system(join(l:cmd))
+  if v:shell_error == 0
+    call s:load_env(lines)
+  else
+    call s:process_err(lines)
+  end
+endfunction
+
+function! s:process_err(lines)
+  if !g:mise_silent_load
+    for l:m in a:lines
+      if l:m isnot# ''
+        echom l:m
+      endif
+    endfor
+  endif
 endfunction
 
 function! s:load_env(lines)
