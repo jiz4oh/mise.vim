@@ -97,7 +97,7 @@ function! mise#env#export_core(sync) abort
     endif
   endif
 
-  let lines = system(join(l:cmd))
+  let lines = systemlist(l:cmd)
   if v:shell_error == 0
     call s:load_env(lines)
   else
