@@ -69,17 +69,32 @@ else
         \ }
 endif
 
-function! mise#env#export(sync) abort
-  call s:export_debounced.do(a:sync)
+function! mise#env#export(sync, ...) abort
+  call s:export_debounced.do(a:sync, a:0 ? a:1 : '')
 endfunction
 
-function! mise#env#export_core(sync) abort
+function! s:env_cmd(dir) abort
+  let cmd = [s:mise_cmd, 'env', '--quiet']
+  if !empty(a:dir)
+    let cmd += ['--cd', a:dir]
+  endif
+  return cmd
+endfunction
+
+function! s:systemlist(cmd) abort
+  if has('nvim')
+    return systemlist(a:cmd)
+  endif
+  return systemlist(join(map(copy(a:cmd), 'shellescape(v:val)'), ' '))
+endfunction
+
+function! mise#env#export_core(sync, ...) abort
   if !executable(s:mise_cmd)
     echom 'No mise executable, add it to your PATH or set correct g:mise_cmd'
     return
   endif
 
-  let l:cmd = [s:mise_cmd, 'env', '--quiet']
+  let l:cmd = s:env_cmd(a:0 ? a:1 : '')
   if !a:sync
     if has('nvim')
       call jobstart(l:cmd, s:job)
@@ -97,7 +112,7 @@ function! mise#env#export_core(sync) abort
     endif
   endif
 
-  let lines = systemlist(l:cmd)
+  let lines = s:systemlist(l:cmd)
   if v:shell_error == 0
     call s:load_env(lines)
   else
@@ -123,15 +138,16 @@ function! s:load_env(lines)
   call mise#env#post_mise_load()
 endfunction
 
-let s:export_debounced = {'id': 0, 'counter': 0}
+let s:export_debounced = {'id': 0, 'counter': 0, 'dir': ''}
 
 function! s:export_debounced.call(...)
   let self.id = 0
   let self.counter = 0
-  call mise#env#export_core(0)
+  call mise#env#export_core(0, self.dir)
 endfunction
 
-function! s:export_debounced.do(sync)
+function! s:export_debounced.do(sync, ...)
+  let self.dir = a:0 ? a:1 : ''
   if has('timers') && !a:sync
     call timer_stop(self.id)
     if self.counter < s:mise_max_wait
@@ -141,6 +157,6 @@ function! s:export_debounced.do(sync)
       call self.call()
     endif
   else
-    call mise#env#export_core(a:sync)
+    call mise#env#export_core(a:sync, self.dir)
   endif
 endfunction

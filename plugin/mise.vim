@@ -13,8 +13,6 @@ command! -nargs=0 -bang MiseEdit call mise#edit#miserc(<bang>0)
 
 augroup mise
   au!
-  autocmd VimEnter * call mise#ruby#set_paths()
-
   if s:mise_auto
     autocmd VimEnter * MiseExport
 
